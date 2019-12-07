@@ -14,7 +14,6 @@ def threaded(c):
         data_str = ''
         data = c.recv(1024)
         data_str += str(data.decode('ascii'))
-        print(data_str)
         if not data:
             print('Bye')
             break
@@ -25,33 +24,36 @@ def threaded(c):
             print_lock.acquire()
             value = data_str.split("'")
             data_str = data_str.replace("(", ",")
+            data_str = data_str.replace(")", ",")
             key = data_str.split(",")
             if key[1]:
                 if key[1] in database:
                     message = '03 KEY TAKEN'
                 else:
-                    print("insert " + value[1] + " into " + key[1])
+                    print("Insert " + value[1] + " into " + key[1])
                     database[key[1]] = value[1]
                     message = '20 INSERTED'
             else:
                 rng_key = rng_key
-                print("insert " + value[1] + " into " + str(rng_key))
+                print("Insert " + value[1] + " into " + str(rng_key))
                 database[str(rng_key)] = value[1]
                 message = '20 INSERTED, KEY=' + str(rng_key)
                 rng_key += 1
             print_lock.release()
         elif "get" == command:
             data_str = data_str.replace("(", ",")
+            data_str = data_str.replace(")", ",")
             key = data_str.split(",")
             if key[1] in database:
-                print("get " + key[1])
+                print("Get " + key[1])
                 message = '30 GOT, VALUE=' + database[key[1]]
             else:
                 message = '02 KEY NOT FOUND'
         elif "peek" == command:
             data_str = data_str.replace("(", ",")
+            data_str = data_str.replace(")", ",")
             key = data_str.split(",")
-            print("peek " + key[1])
+            print("Peek " + key[1])
             if key[1] in database:
                 message = '40 PEEKED, VALUE=True'
             else:
@@ -60,8 +62,9 @@ def threaded(c):
             print_lock.acquire()
             value = data_str.split("'")
             data_str = data_str.replace("(", ",")
+            data_str = data_str.replace(")", ",")
             key = data_str.split(",")
-            print("update " + key[1] + " to " + value[1])
+            print("Update " + key[1] + " to " + value[1])
             if key[1] in database:
                 database[key[1]] = value[1]
                 message = '50 UPDATED'
@@ -71,16 +74,17 @@ def threaded(c):
         elif "delete" == command:
             print_lock.acquire()
             data_str = data_str.replace("(", ",")
+            data_str = data_str.replace(")", ",")
             key = data_str.split(",")
             if key[1] in database:
-                print("delete " + key[1])
+                print("Delete " + key[1])
                 del database[key[1]]
                 message = '60 DELETED'
             else:
                 message = '02 KEY NOT FOUND'
             print_lock.release()
         elif "list" == command:
-            print("list")
+            print("List")
             message = '60 LIST'
             for key in database.keys():
                 message += '\n' + str(key)
@@ -88,14 +92,13 @@ def threaded(c):
             message = '10 CONNECTED'
         else:
             message = '01 BAD REQUEST'
-        print(data_str)
         c.send(message.encode('ascii'))
     c.close()
 
 
 def Main():
-    host = ""
-    port = 12345
+    host = "0.0.0.0"
+    port = 31313
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((host, port))
     print("socket binded to port", port)

@@ -2,8 +2,12 @@ import socket
 
 
 def Main():
+    global s
+    host = input('Insert server IP: ')
+    port = int(input('Insert server port: '))
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((host, port))
     while True:
-        global s
         message = "bad()"
         command = input('\nInsert command: ')
         if command == 'connect':
